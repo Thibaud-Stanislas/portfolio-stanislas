@@ -27,10 +27,13 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Préparer les fichiers publics
         run: |
-          mkdir -p site/admin site/projects/tempo
+          mkdir -p site/admin site/projects/tempo site/projects/atelier-oree site/projects/escale
           cp index.html styles.css app.js config.js favicon.svg .nojekyll site/
           cp admin/login.html admin/index.html admin/admin.css admin/login.js admin/admin.js site/admin/
           cp projects/tempo/index.html projects/tempo/tempo.css projects/tempo/tempo.js site/projects/tempo/
+          cp projects/case-study.css site/projects/
+          cp projects/atelier-oree/index.html projects/atelier-oree/oree.js site/projects/atelier-oree/
+          cp projects/escale/index.html projects/escale/escale.js site/projects/escale/
       - name: Déposer l’artefact Pages
         uses: actions/upload-pages-artifact@v3
         with:
@@ -38,4 +41,3 @@ jobs:
       - name: Publier
         id: deployment
         uses: actions/deploy-pages@v4
-
