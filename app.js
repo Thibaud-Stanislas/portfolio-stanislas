@@ -41,25 +41,6 @@
     cards.forEach((card) => { card.hidden = category !== 'all' && card.dataset.category !== category; });
   }));
 
-  const projects = {
-    ore: { category: '01 / E-COMMERCE · ARTISANAT', title: 'Atelier Orée', description: 'Une expérience de boutique pensée autour du travail de la céramiste : une navigation par collection, des fiches produits soignées et un panier qui garde la simplicité du fait-main.', points: ['Catalogue et filtres produits', 'Panier interactif', 'Design responsive', 'Univers éditorial chaleureux'] },
-    escale: { category: '02 / SITE VITRINE · HOSPITALITÉ', title: 'Escale', description: 'Un site vitrine pour une maison d’hôtes fictive de la côte Atlantique. Le parcours présente les chambres, les services et les informations utiles avant d’orienter vers la réservation.', points: ['Présentation des chambres', 'Horaires et accès clairs', 'Parcours de réservation', 'Conception mobile-first'] }
-  };
-  const dialog = document.getElementById('project-dialog');
-  document.querySelectorAll('[href="#projet-ore"],[href="#projet-escale"]').forEach((link) => link.addEventListener('click', (event) => {
-    event.preventDefault();
-    const key = link.getAttribute('href').includes('ore') ? 'ore' : 'escale';
-    const project = projects[key];
-    document.getElementById('dialog-kicker').textContent = project.category;
-    document.getElementById('dialog-title').textContent = project.title;
-    document.getElementById('dialog-description').textContent = project.description;
-    document.getElementById('dialog-points').replaceChildren(...project.points.map((point) => {
-      const item = document.createElement('span'); item.textContent = `✳  ${point}`; return item;
-    }));
-    dialog?.showModal();
-  }));
-  document.getElementById('dialog-cta')?.addEventListener('click', () => dialog?.close());
-
   const observer = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => entries.forEach((entry) => {
     if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); }
   }), { threshold: 0.12 }) : null;
@@ -92,4 +73,3 @@
   });
   document.getElementById('year').textContent = new Date().getFullYear();
 })();
-
