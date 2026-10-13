@@ -29,7 +29,7 @@ Tempo Studio est une étude de concept fictive pour un atelier de céramique. La
 
 ## Vérifications
 
-Lancer `npm test` pour exécuter les vérifications API : mot de passe et session, formulaire de contact, protection admin, changements d’état, filtres côté client, capacités et validation des réservations.
+Lancer `npm test` pour exécuter les vérifications API de la connexion admin, de la validation et du traitement des messages, ainsi que des règles de réservation. La navigation mobile, le mode sombre, les filtres de projets, l’admin et les formulaires ont aussi été vérifiés dans le navigateur.
 
 ## Contact
 
