@@ -17,3 +17,29 @@ body{overflow-x:clip}.hero{overflow-x:clip}.hero-visual{min-width:0}.visual-orbi
 .tempo-new-session{display:inline-flex;align-items:center;background:#7362b3;color:#fff;border-radius:3px;padding:8px 9px;font-size:7px;white-space:nowrap}
 .tempo-see-all{font-size:7px;color:#7362b3;white-space:nowrap}
 @media(max-width:390px){.work-card-wide .tempo-new-session{font-size:6px;padding:7px}}
+
+/* Differentiated photo-led concepts */
+.art-ore{background-image:linear-gradient(90deg,#211914cf 0%,#2119149c 44%,#21191412 100%),url("projects/atelier-oree/images/atelier-main.webp")!important;background-size:cover!important;background-position:center 48%!important;color:#fff!important}
+.art-ore .ore-layout{background:linear-gradient(90deg,#211914b8,transparent 100%)!important}
+.art-ore .ore-copy>span,.art-ore .ore-copy small,.art-ore .ore-copy b{color:#fff!important}
+.art-ore .ore-copy strong{color:#fff!important}
+.art-ore .ore-pot,.art-ore .ore-badge{display:none!important}
+.art-ore .ore-copy{padding-left:9%!important}
+.art-ore .ore-copy b{border-bottom-color:#ffffff88!important}
+.art-escale{background-image:linear-gradient(90deg,#15383cc9 0%,#15383c70 56%,#15383c18 100%),url("projects/escale/images/terrasse.webp")!important;background-size:cover!important;background-position:center 56%!important;color:#fff!important}
+.art-escale .escale-nav b,.art-escale .escale-nav>span,.art-escale .escale-nav>i,.art-escale .escale-main>span:first-child,.art-escale .escale-main strong{color:#fff!important}
+.art-escale .escale-main{background:none!important}
+.art-escale .escale-main>span.escale-art-button{background:#f3eee5!important;color:#173f40!important}
+.art-escale .escale-sun,.art-escale .escale-horizon,.art-escale .escale-sea,.art-escale .escale-card{display:none!important}
+.art-escale .art-grain{opacity:.12!important}
+.art-tempo{background:#12121b!important}
+.art-tempo .tempo-frame{background:#1b1a27;border-color:#49465d;box-shadow:0 15px 35px #09090e55}
+.art-tempo .tempo-sidebar{background:#242235;color:#e4e0f2}
+.art-tempo .tempo-dashboard{background:#171621;color:#f0eef8}
+.art-tempo .tempo-stats>div,.art-tempo .tempo-schedule{background:#222130;border-color:#3c394f;color:#f0eef8}
+.art-tempo .tempo-topline strong,.art-tempo .tempo-schedule strong{color:#f0eef8}
+.art-tempo .tempo-topline>div>span,.art-tempo .tempo-stats>div>span{color:#aba7bb}
+.art-tempo .tempo-stats>div>b{color:#edeaf7}
+.art-tempo .session-row{border-color:#3c394f}
+.art-tempo .art-grain{opacity:.08}
+

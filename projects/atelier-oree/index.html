@@ -1,59 +1,51 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f4f1e9">
-  <meta name="description" content="Atelier Orée, étude de concept d’une boutique en ligne pour une céramiste indépendante.">
-  <title>Atelier Orée — Objets faits à la main</title>
-  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../case-study.css">
-  <script src="oree.js" defer></script>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f3eee5"><meta name="description" content="Atelier Orée, boutique en ligne fictive de céramiques artisanales.">
+  <title>Atelier Orée — La terre prend forme</title>
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="oree.css"><script src="oree.js" defer></script>
 </head>
 <body class="oree">
-  <header class="case-header">
-    <nav class="case-shell case-nav" aria-label="Navigation Atelier Orée">
-      <a class="case-mark" href="#accueil">orée<span>.</span></a>
-      <div class="case-nav-links"><a href="#collection">La collection</a><a href="#atelier">L’atelier</a><a class="case-back" href="../../index.html#projets"><span>←</span> Portfolio Stanislas</a></div>
-      <a class="case-quiet-link" href="#collection" aria-label="Voir le panier de démonstration">Panier <span id="cart-count" aria-live="polite">0</span></a>
+  <header class="ore-header">
+    <div class="ore-topline"><span>OBJETS D’ATELIER</span><span>Petites séries · Fait main · Expédition soignée</span><span>PARIS / BORDEAUX</span></div>
+    <nav class="ore-nav" aria-label="Navigation Atelier Orée">
+      <a class="ore-logo" href="#accueil" aria-label="Atelier Orée, accueil">orée<span>®</span></a>
+      <div class="ore-links"><a href="#collection">La collection</a><a href="#atelier">Le geste</a><a href="../../index.html#projets">← Portfolio</a></div>
+      <a class="ore-cart" href="#collection">Panier <b id="cart-count" aria-live="polite">0</b><span>↗</span></a>
     </nav>
   </header>
   <main id="accueil">
-    <div class="case-note case-shell"><i></i> ÉTUDE DE CONCEPT FICTIVE · BOUTIQUE EN LIGNE · DÉMO INTERACTIVE</div>
-    <section class="case-shell case-hero" aria-labelledby="hero-title">
-      <div>
-        <p class="case-overline">OBJETS POUR VIVRE · FAIT MAIN EN FRANCE</p>
-        <h1 id="hero-title">La beauté<br>du quotidien<span>.</span></h1>
-        <p class="case-intro">Des pièces en céramique façonnées une à une, pour celles et ceux qui aiment les objets simples, durables et un peu singuliers.</p>
-        <div class="case-actions"><a class="case-button" href="#collection">Explorer la collection <span>↓</span></a><a class="case-quiet-link" href="#atelier">Rencontrer l’atelier <span>↗</span></a></div>
-        <div class="case-facts"><div><b>PETITES SÉRIES</b><span>Chaque pièce a son histoire</span></div><div><b>FAIT À LA MAIN</b><span>Dans un atelier indépendant</span></div></div>
+    <section class="ore-hero">
+      <div class="ore-hero-copy">
+        <p class="ore-kicker"><span></span> CÉRAMIQUE CONTEMPORAINE · PIÈCES SINGULIÈRES</p>
+        <h1>La terre<br><em>prend forme.</em></h1>
+        <p class="ore-lead">Des objets façonnés à la main, pensés pour traverser les saisons et trouver leur place chez vous.</p>
+        <div class="ore-actions"><a class="ore-button" href="#collection">Voir la collection <span>↘</span></a><a class="ore-text-link" href="#atelier">Un peu sur l’atelier <span>↗</span></a></div>
+        <div class="ore-proof"><span>01 / 03</span><p>FAÇONNÉ LENTEMENT<br><b>Pour vivre longtemps.</b></p><i>✳</i></div>
       </div>
-      <div class="case-visual ore-visual" role="img" aria-label="Illustration d’un vase en céramique artisanale">
-        <span class="case-visual-label">COLLECTION · TERRE BRUTE</span><span class="case-visual-index">01 / 03</span>
-        <div class="ore-copy-card"><small>OBJETS POUR VIVRE</small><strong>La beauté<br>du quotidien.</strong><span>Fabriqué lentement, aimé longtemps.</span></div>
-        <i class="ore-leaf"></i><i class="ore-leaf leaf-two"></i><div class="ore-vase"></div><span class="ore-seal">FAIT À<br>LA MAIN</span>
+      <figure class="ore-hero-figure"><img src="images/atelier-main.webp" alt="Un céramiste façonne une pièce dans son atelier"><figcaption><span>LE GESTE, AVANT L’OBJET</span><a href="https://unsplash.com/photos/a-potter-works-on-a-vase-in-his-workshop-7kB8Sv1bGm4" target="_blank" rel="noreferrer">Photo : Vitaly Gariev / Unsplash ↗</a></figcaption><span class="ore-stamp" aria-hidden="true">FAIT<br>À LA<br>MAIN</span></figure>
+      <div class="ore-side-index" aria-hidden="true">ATELIER ORÉE — OBJETS POUR VIVRE — 2026</div>
+    </section>
+    <div class="ore-ribbon"><div><span>ARGILE VIVANTE</span><i>✳</i><span>PIÈCES UNIQUES</span><i>✳</i><span>FABRICATION LOCALE</span><i>✳</i><span>BEAUTÉ DU QUOTIDIEN</span></div></div>
+    <section class="ore-collection" id="collection">
+      <div class="ore-shell">
+        <div class="ore-section-head"><div><p class="ore-kicker">01 — LA SÉLECTION</p><h2>Des pièces à<br><em>faire durer.</em></h2></div><p class="ore-section-note">Chaque objet est une variation de matière, de feu et de main. Il n’y en a jamais deux tout à fait pareils.</p><span class="ore-count">3 OBJETS<br>EN ÉDITION COURTE</span></div>
+        <div class="ore-product-grid">
+          <article class="ore-product"><figure><img src="images/piece-vase.webp" alt="Deux pièces en céramique claire à la surface mouchetée"><figcaption>TERRE CLAIRE · SÉRIE 01</figcaption></figure><div class="ore-product-copy"><p>01 / VASE · TERRE BLANCHE</p><h3>Vase Nuage</h3><span>Grès chamotté · 18 cm</span><b>68 €</b></div><button class="add-product" type="button" data-product="Vase Nuage" data-price="68">Ajouter au panier <span>＋</span></button></article>
+          <article class="ore-product ore-product-offset"><figure><img src="images/piece-terre.webp" alt="Vase rouge profond en céramique sur fond clair"><figcaption>TERRE ROUGE · SÉRIE 02</figcaption></figure><div class="ore-product-copy"><p>02 / VASE · TERRE ROUGE</p><h3>Sol, grand format</h3><span>Grès émaillé · 26 cm</span><b>92 €</b></div><button class="add-product" type="button" data-product="Sol, grand format" data-price="92">Ajouter au panier <span>＋</span></button></article>
+          <article class="ore-product"><figure><img src="images/piece-fleur.webp" alt="Vase en céramique blanche avec une branche d’eucalyptus"><figcaption>OBJET D’INTÉRIEUR · SÉRIE 03</figcaption></figure><div class="ore-product-copy"><p>03 / VASE · TERRE BLANCHE</p><h3>Branche libre</h3><span>Façonné au tour · 21 cm</span><b>74 €</b></div><button class="add-product" type="button" data-product="Branche libre" data-price="74">Ajouter au panier <span>＋</span></button></article>
+        </div>
+        <p class="ore-cart-message" id="cart-message" role="status" aria-live="polite">Le panier est une démonstration interactive.</p>
       </div>
     </section>
-    <div class="concept-strip"><div class="case-shell"><span>DES PIÈCES UNIQUES</span><i>✳</i><span>ARGILE LOCALE</span><i>✳</i><span>FABRICATION LENTE</span><i>✳</i><span>EXPÉDITION SOIGNÉE</span></div></div>
-    <section class="collection-section case-shell" id="collection" aria-labelledby="collection-title">
-      <div class="section-rule"><div><p>LA COLLECTION ORÉE</p><h2 id="collection-title">Des objets à garder.</h2></div><span>01 — 03</span></div>
-      <div class="product-grid">
-        <article class="product-card"><div class="product-visual pv-mug" role="img" aria-label="Tasse en céramique terre cuite"></div><div class="product-details"><div><h3>Tasse Alizé</h3><p>Grès chamotté · 240 ml</p></div><span class="product-price">38 €</span></div><button class="add-product" type="button" data-product="Tasse Alizé" data-price="38">Ajouter au panier <span>+</span></button></article>
-        <article class="product-card"><div class="product-visual pv-vase" role="img" aria-label="Vase en céramique claire"></div><div class="product-details"><div><h3>Vase Néroli</h3><p>Grès ivoire · H 22 cm</p></div><span class="product-price">64 €</span></div><button class="add-product" type="button" data-product="Vase Néroli" data-price="64">Ajouter au panier <span>+</span></button></article>
-        <article class="product-card"><div class="product-visual pv-bowl" role="img" aria-label="Coupe en céramique artisanale"></div><div class="product-details"><div><h3>Coupe Alba</h3><p>Terre rouge · Ø 18 cm</p></div><span class="product-price">52 €</span></div><button class="add-product" type="button" data-product="Coupe Alba" data-price="52">Ajouter au panier <span>+</span></button></article>
-      </div>
-      <p class="cart-message" id="cart-message" role="status" aria-live="polite">Choisissez une pièce pour tester le panier.</p>
+    <section class="ore-story" id="atelier">
+      <div class="ore-story-image"><img src="images/atelier-main.webp" alt="Le travail de la terre dans un atelier de céramique"><span>DU TEMPS ET DE LA TERRE</span></div>
+      <div class="ore-story-copy"><p class="ore-kicker">02 — LE GESTE</p><p class="ore-quote">« Ce qui est fait lentement<br>trouve souvent <em>sa place.</em> »</p><p>Atelier Orée est une marque fictive imaginée autour du travail de la terre. La boutique privilégie les photos de matière, une sélection courte et des fiches produits précises : une expérience de vente qui laisse respirer les objets.</p><div class="ore-values"><span>01 <b>Petites séries</b></span><span>02 <b>Matière vivante</b></span><span>03 <b>Commande simple</b></span></div><a class="ore-text-link" href="../../index.html#contact">Imaginer votre boutique en ligne <span>↗</span></a></div>
     </section>
-    <section class="case-shell story-grid" id="atelier">
-      <blockquote class="story-quote">« Une pièce n’a pas besoin d’être parfaite pour trouver <span>sa place.</span> »</blockquote>
-      <div class="story-copy"><p class="case-overline">UN ATELIER, PAS UNE USINE</p><p>Atelier Orée est un concept de marque imaginé autour du geste et de la matière. Le site traduit cette approche en donnant autant de place aux objets qu’aux personnes qui les fabriquent.</p><p><strong>La boutique met en scène les collections, explique les matières et garde un parcours d’achat sans détour.</strong> Chaque détail aide à se projeter, sans faire oublier le caractère artisanal des pièces.</p><a class="case-quiet-link" href="../../index.html#contact">Imaginer votre boutique <span>↗</span></a></div>
-    </section>
-    <section class="case-shell" aria-labelledby="experience-title">
-      <div class="section-rule"><div><p>DU PREMIER REGARD À LA COMMANDE</p><h2 id="experience-title">Une expérience simple.</h2></div><span>PARCOURS CLIENT</span></div>
-      <div class="steps-grid"><article class="step-card"><span>01</span><h3>Découvrir</h3><p>Une identité chaleureuse, des collections lisibles et des photos qui laissent parler les matières.</p></article><article class="step-card"><span>02</span><h3>Comprendre</h3><p>Des fiches produits claires pour connaître la taille, la terre et les particularités de chaque objet.</p></article><article class="step-card"><span>03</span><h3>Commander</h3><p>Un panier direct et une expérience mobile soignée, sans détour inutile avant l’achat.</p></article></div>
-    </section>
-    <section class="case-shell case-cta"><h2>Un site qui raconte<br><em>votre savoir-faire.</em></h2><a class="case-button" href="../../index.html#contact">Parlons de votre projet <span>↗</span></a></section>
+    <section class="ore-cta"><p>UN PROJET QUI MÉRITE<br>SON PROPRE <em>UNIVERS.</em></p><a href="../../index.html#contact" class="ore-button">Parlons de votre projet <span>↗</span></a></section>
   </main>
-  <footer class="case-footer case-shell"><a class="case-mark" href="#accueil">orée<span>.</span></a><span>ÉTUDE DE CONCEPT FICTIVE · STANISLAS</span><a href="../../index.html#projets">Retour aux projets ↗</a></footer>
+  <footer class="ore-footer"><a class="ore-logo" href="#accueil">orée<span>®</span></a><p>ÉTUDE DE CONCEPT FICTIVE · EXPÉRIENCE E-COMMERCE</p><details class="ore-credits"><summary>Crédits photo</summary><div><a href="https://unsplash.com/photos/white-ceramic-vase-on-white-table-uDF1mW7EUwM" target="_blank" rel="noreferrer">Tom Crew</a> · <a href="https://unsplash.com/photos/red-ceramic-vase-lh7ZFoTtfi0" target="_blank" rel="noreferrer">五玄土 ORIENTO</a> · <a href="https://unsplash.com/photos/white-ceramic-vase-with-flower-a0rE64YJDA4" target="_blank" rel="noreferrer">Linh Le</a> · <a href="https://unsplash.com/photos/a-potter-works-on-a-vase-in-his-workshop-7kB8Sv1bGm4" target="_blank" rel="noreferrer">Vitaly Gariev</a> · Unsplash</div></details><a href="../../index.html#projets">Retour au portfolio ↗</a></footer>
 </body>
 </html>
+
