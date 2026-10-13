@@ -1,17 +1,17 @@
 {
-  "name": "steadfast-spectrum",
-  "type": "module",
-  "version": "0.0.1",
+  "name": "stanislas-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Portfolio freelance de Stanislas avec API de contact, réservation et administration.",
+  "engines": { "node": ">=20" },
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro check && astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "start": "node server.js",
+    "test": "node --test"
   },
   "dependencies": {
-    "astro": "^4.7.0",
-    "@astrojs/check": "^0.5.10",
-    "typescript": "^5.4.5"
+    "better-sqlite3": "^12.2.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
   }
 }
+
