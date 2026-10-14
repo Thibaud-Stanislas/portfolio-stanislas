@@ -8,7 +8,7 @@
   const dialog = document.getElementById('booking-success');
   const slots = ['09:30', '11:00', '14:30', '16:00'];
   const apiBase = (window.PORTFOLIO_CONFIG?.apiBaseUrl || '').replace(/\/$/, '');
-  const storageKey = 'tempo-demo-bookings';
+  const storageKey = 'tempo-yoga-demo-bookings';
   const pad = (value) => String(value).padStart(2, '0');
   const isoDate = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
   const now = new Date();
@@ -50,7 +50,7 @@
       renderSlots(data.bookings || []);
       status.textContent = 'Démonstration connectée au serveur de réservations.';
     } catch {
-      status.textContent = 'Démonstration interactive locale — les réservations restent dans ce navigateur.';
+      status.textContent = 'Démo interactive locale — votre demande reste enregistrée dans ce navigateur.';
     }
   }
   dateInput.addEventListener('change', loadSlots);
@@ -80,11 +80,11 @@
       localStorage.setItem(storageKey, JSON.stringify(bookings));
       status.textContent = error.message === 'Failed to fetch' ? 'Demande enregistrée dans cette démonstration sur votre navigateur.' : error.message;
     }
-    document.getElementById('success-copy').textContent = `${booking.name}, votre demande du ${new Date(`${booking.date}T12:00:00`).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} à ${booking.time} est bien enregistrée. Cette démo n’envoie pas de confirmation réelle.`;
+    const selectedCourse = form.querySelector('#class-choice').selectedOptions[0]?.textContent.split(' · ')[0] || 'votre cours';
+    document.getElementById('success-copy').textContent = booking.name + ', votre demande pour ' + selectedCourse + ' du ' + new Date(booking.date + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) + ' à ' + booking.time + ' est bien enregistrée. Cette démo n’envoie pas de confirmation réelle.';
     form.reset(); dateInput.value = booking.date; timeInput.value = ''; await loadSlots(); submit.disabled = false; dialog.showModal();
   });
   document.querySelector('.success-close').addEventListener('click', () => dialog.close());
   document.getElementById('success-done').addEventListener('click', () => dialog.close());
   dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
 })();
-

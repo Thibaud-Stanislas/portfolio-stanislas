@@ -1,29 +1,171 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#171625">
-  <meta name="description" content="Tempo Studio — démonstration d'une application de réservation pour un atelier créatif.">
-  <title>Tempo Studio — Réservez votre atelier</title>
-  <link rel="icon" href="../../favicon.svg" type="image/svg+xml"><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="tempo.css"><link rel="stylesheet" href="tempo-redesign.css"><script src="../../config.js"></script><script src="tempo.js" defer></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#171625">
+  <meta name="description" content="Tempo Studio Yoga — planning, réservation de cours et gestion des places pour un studio de yoga fictif.">
+  <title>Tempo Studio Yoga — Cours & réservations</title>
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="tempo.css">
+  <link rel="stylesheet" href="tempo-redesign.css">
+  <script src="../../config.js"></script>
+  <script src="tempo.js" defer></script>
 </head>
 <body>
-  <header class="tempo-header"><div class="tempo-wrap nav-wrap"><a class="back-link" href="../../index.html#projets"><span>←</span> Retour au portfolio</a><a class="tempo-brand" href="#accueil"><i>t</i> tempo<span>.</span></a><a class="nav-admin" href="../../admin/login.html">Espace studio <span>↗</span></a></div></header>
+  <header class="tempo-header">
+    <div class="tempo-wrap nav-wrap">
+      <a class="back-link" href="../../index.html#projets"><span>←</span> Retour au portfolio</a>
+      <a class="tempo-brand" href="#accueil"><i>t</i> tempo<span>.</span></a>
+      <a class="nav-admin" href="../../admin/login.html">Espace studio <span>↗</span></a>
+    </div>
+  </header>
+
   <main>
-    <section class="tempo-hero" id="accueil"><div class="tempo-wrap tempo-hero-grid"><div class="tempo-hero-copy"><p class="overline"><span></span> STUDIO DE CÉRAMIQUE · BORDEAUX</p><h1>Un moment<br>à <em>modeler.</em></h1><p>Les mains dans l’argile, l’esprit ailleurs. Choisissez votre atelier et réservez votre place en quelques instants.</p><a href="#reservation" class="primary-button">Choisir un atelier <span>↓</span></a><div class="social-proof"><div class="proof-avatars"><span>ML</span><span>AL</span><span>↗</span></div><div><b>4,9 / 5</b><small>Plus de 320 mains heureuses</small></div><span class="proof-star">★★★★★</span></div></div><figure class="hero-art"><img class="tempo-hero-image" src="images/tempo-main.webp" alt="Des mains façonnent un pot sur le tour de potier"><figcaption class="art-caption">STUDIO TEMPO<br>FAIRE, ENSEMBLE <span>✳</span></figcaption></figure></div></section>
-    <section class="promise-strip"><div class="tempo-wrap"><span>TOUT LE MATÉRIEL EST FOURNI</span><i>✳</i><span>PETITS GROUPES DE 8 PERSONNES</span><i>✳</i><span>DÉBUTANTS BIENVENUS</span><i>✳</i><span>ON S’OCCUPE DE LA CUISSON</span></div></section>
-    <section class="classes tempo-wrap" id="ateliers"><div class="section-top"><div><p class="overline">LES MAINS DANS L’ARGILE</p><h2>Votre prochain<br><em>atelier.</em></h2></div><p>Un tablier, quelques outils, et le plaisir de faire quelque chose de ses mains.</p></div>
-      <div class="class-grid"><article class="class-card"><div class="class-photo photo-wheel"><img src="images/atelier-tour.webp" alt="Une potière façonne un vase sur le tour"><span>LE GRAND CLASSIQUE</span></div><div class="class-details"><div class="class-type">INITIATION · 2H30</div><h3>Tournage en douceur</h3><p>Centrez la terre, trouvez le geste. Repartez avec une pièce façonnée par vos soins.</p><div class="class-bottom"><strong>58 € <small>/ personne</small></strong><span>↗ Tout niveau</span></div></div></article><article class="class-card"><div class="class-photo photo-hand"><img src="images/atelier-modelage.webp" alt="Des mains modèlent une pièce en argile"><span>LES MAINS LIBRES</span></div><div class="class-details"><div class="class-type">CRÉATION LIBRE · 2H</div><h3>Modelage libre</h3><p>Pas de tour, pas de règle. Une forme, une texture, votre imagination pour guide.</p><div class="class-bottom"><strong>46 € <small>/ personne</small></strong><span>↗ Tout niveau</span></div></div></article><article class="class-card"><div class="class-photo photo-family"><img src="images/atelier-duo.webp" alt="Le geste d’un artisan pendant la création d’une pièce en terre"><span>À DEUX, OU À PLUS</span></div><div class="class-details"><div class="class-type">DUO PARENT-ENFANT · 1H45</div><h3>Petites mains</h3><p>Un moment complice pour fabriquer ensemble et repartir avec un souvenir unique.</p><div class="class-bottom"><strong>64 € <small>/ duo</small></strong><span>↗ Dès 6 ans</span></div></div></article></div>
+    <section class="tempo-hero" id="accueil">
+      <div class="tempo-wrap tempo-hero-grid">
+        <div class="tempo-hero-copy">
+          <p class="overline"><span></span> STUDIO DE YOGA · BORDEAUX</p>
+          <h1>Retrouvez votre<br><em>rythme.</em></h1>
+          <p>Du mouvement, du souffle et des cours en petit groupe. Choisissez votre pratique et réservez votre place en quelques instants.</p>
+          <a href="#reservation" class="primary-button">Voir le planning <span>↓</span></a>
+          <div class="social-proof">
+            <div class="proof-avatars"><span>ML</span><span>AL</span><span>↗</span></div>
+            <div><b>4,9 / 5</b><small>Plus de 320 élèves au studio</small></div>
+            <span class="proof-star">★★★★★</span>
+          </div>
+        </div>
+        <figure class="hero-art">
+          <img class="tempo-hero-image" src="images/yoga-main.webp" alt="Une élève pratique une posture de yoga dans un studio">
+          <figcaption class="art-caption">TEMPO STUDIO<br>BOUGER · RESPIRER <span>✳</span></figcaption>
+        </figure>
+      </div>
     </section>
-    <section class="booking-section" id="reservation"><div class="tempo-wrap booking-layout"><div class="booking-copy"><p class="overline">ON GARDE UNE PLACE POUR VOUS</p><h2>Un peu de terre.<br><em>Beaucoup de bien.</em></h2><p>Choisissez une date, un atelier et laissez-nous le reste. La réservation est sans paiement en ligne dans cette démo.</p><div class="booking-detail"><span>01</span><p><b>Vous choisissez</b><small>Un atelier, une date, un créneau.</small></p></div><div class="booking-detail"><span>02</span><p><b>On vous confirme</b><small>Un e-mail de confirmation, sous 24 h.</small></p></div><div class="booking-detail"><span>03</span><p><b>Vous créez</b><small>Tout est prêt à l’atelier. À vous de jouer.</small></p></div><a href="../../index.html#contact" class="question-link">Une question ? Parlons-en ↗</a></div>
-        <form class="booking-form" id="booking-form"><div class="booking-form-head"><div><span>RÉSERVATION EN LIGNE</span><h3>Choisir mon atelier</h3></div><i>✳</i></div><label for="class-choice">L’atelier</label><select id="class-choice" name="className" required><option value="tournage">Tournage en douceur — 58 €</option><option value="modelage">Modelage libre — 46 €</option><option value="duo">Petites mains (duo) — 64 €</option></select><label for="booking-date">La date</label><input id="booking-date" name="date" type="date" required><div class="slot-heading"><span>CHOISISSEZ UN CRÉNEAU</span><span id="slot-capacity"></span></div><div class="time-slots" id="time-slots" role="group" aria-label="Créneaux disponibles"></div><input id="booking-time" name="time" type="hidden" required><label for="booking-name">Votre nom</label><input id="booking-name" name="name" autocomplete="name" placeholder="Camille Martin" required maxlength="100"><label for="booking-email">Votre e-mail</label><input id="booking-email" name="email" type="email" autocomplete="email" placeholder="camille@exemple.fr" required maxlength="254"><button class="primary-button booking-submit" type="submit">Demander ma réservation <span>↗</span></button><p class="booking-legal" id="booking-status" role="status" aria-live="polite">Démo fictive — aucune réservation ne sera réellement confirmée.</p><input type="text" name="website" class="trap" tabindex="-1" autocomplete="off" aria-hidden="true"></form>
-      </div></section>
-    <section class="closing tempo-wrap"><p>LA TERRE PREND SON TEMPS.<br><em>VOUS AUSSI, VOUS POUVEZ.</em></p><span>✳</span><a href="#accueil">↑</a></section>
+
+    <section class="promise-strip">
+      <div class="tempo-wrap">
+        <span>TAPIS ET ACCESSOIRES FOURNIS</span><i>✳</i>
+        <span>COURS EN PETITS GROUPES</span><i>✳</i>
+        <span>TOUS LES NIVEAUX BIENVENUS</span><i>✳</i>
+        <span>DES CRÉNEAUX MATIN & SOIR</span>
+      </div>
+    </section>
+
+    <section class="classes tempo-wrap" id="cours">
+      <div class="section-top">
+        <div>
+          <p class="overline">LE PLANNING DU STUDIO</p>
+          <h2>Choisissez votre<br><em>pratique.</em></h2>
+        </div>
+        <p>Vinyasa, yin ou respiration guidée : trouvez le cours qui correspond à votre énergie du jour.</p>
+      </div>
+      <div class="class-grid">
+        <article class="class-card">
+          <div class="class-photo photo-flow">
+            <img src="images/yoga-vinyasa.webp" alt="Un cours collectif de yoga dans un studio">
+            <span>LE GRAND CLASSIQUE</span>
+          </div>
+          <div class="class-details">
+            <div class="class-type">FLUIDITÉ · 60 MIN</div>
+            <h3>Vinyasa Flow</h3>
+            <p>Des enchaînements où le mouvement suit le souffle, avec des options adaptées à votre niveau.</p>
+            <div class="class-bottom"><strong>18 € <small>/ cours</small></strong><span>↗ Tous niveaux</span></div>
+          </div>
+        </article>
+        <article class="class-card">
+          <div class="class-photo photo-yin">
+            <img src="images/yoga-doux.webp" alt="Une pratiquante assise sur son tapis dans une posture de yoga">
+            <span>RALENTIR & RELÂCHER</span>
+          </div>
+          <div class="class-details">
+            <div class="class-type">YIN YOGA · 75 MIN</div>
+            <h3>Yin & relâchement</h3>
+            <p>Des postures tenues dans le calme, pour dénouer les tensions et laisser de la place au repos.</p>
+            <div class="class-bottom"><strong>17 € <small>/ cours</small></strong><span>↗ Tout niveau</span></div>
+          </div>
+        </article>
+        <article class="class-card">
+          <div class="class-photo photo-breathe">
+            <img src="images/yoga-respiration.webp" alt="Une personne médite au calme après une séance de yoga">
+            <span>UNE PAUSE POUR SOI</span>
+          </div>
+          <div class="class-details">
+            <div class="class-type">RESPIRATION · 45 MIN</div>
+            <h3>Respiration guidée</h3>
+            <p>Un temps accessible pour ralentir, retrouver son souffle et repartir avec l’esprit plus léger.</p>
+            <div class="class-bottom"><strong>15 € <small>/ cours</small></strong><span>↗ Débutants</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="booking-section" id="reservation">
+      <div class="tempo-wrap booking-layout">
+        <div class="booking-copy">
+          <p class="overline">ON GARDE UNE PLACE POUR VOUS</p>
+          <h2>Votre prochaine<br><em>séance.</em></h2>
+          <p>Choisissez un cours, une date et un créneau. La réservation reste une démonstration sans paiement en ligne.</p>
+          <div class="booking-detail"><span>01</span><p><b>Vous choisissez</b><small>Une pratique, une date, un horaire.</small></p></div>
+          <div class="booking-detail"><span>02</span><p><b>La jauge est vérifiée</b><small>Les places disponibles sont affichées avant l’envoi.</small></p></div>
+          <div class="booking-detail"><span>03</span><p><b>Le studio vous répond</b><small>Votre demande est récapitulée à l’écran.</small></p></div>
+          <a href="../../index.html#contact" class="question-link">Une question ? Parlons-en ↗</a>
+        </div>
+        <form class="booking-form" id="booking-form">
+          <div class="booking-form-head">
+            <div><span>RÉSERVATION EN LIGNE</span><h3>Choisir mon cours</h3></div><i>✳</i>
+          </div>
+          <label for="class-choice">La pratique</label>
+          <select id="class-choice" name="className" required>
+            <option value="vinyasa">Vinyasa Flow · 18 € / cours</option>
+            <option value="yin">Yin & relâchement · 17 € / cours</option>
+            <option value="respiration">Respiration guidée · 15 € / cours</option>
+          </select>
+          <label for="booking-date">La date</label>
+          <input id="booking-date" name="date" type="date" required>
+          <div class="slot-heading"><span>CHOISISSEZ UN CRÉNEAU</span><span id="slot-capacity"></span></div>
+          <div class="time-slots" id="time-slots" role="group" aria-label="Créneaux disponibles"></div>
+          <input id="booking-time" name="time" type="hidden" required>
+          <label for="booking-name">Votre nom</label>
+          <input id="booking-name" name="name" autocomplete="name" placeholder="Camille Martin" required maxlength="100">
+          <label for="booking-email">Votre e-mail</label>
+          <input id="booking-email" name="email" type="email" autocomplete="email" placeholder="camille@exemple.fr" required maxlength="254">
+          <button class="primary-button booking-submit" type="submit">Demander ma réservation <span>↗</span></button>
+          <p class="booking-legal" id="booking-status" role="status" aria-live="polite">Démo fictive — aucune réservation ne sera réellement confirmée.</p>
+          <input type="text" name="website" class="trap" tabindex="-1" autocomplete="off" aria-hidden="true">
+        </form>
+      </div>
+    </section>
+
+    <section class="closing tempo-wrap">
+      <p>BOUGER À SON RYTHME.<br><em>RESPIRER PLEINEMENT.</em></p>
+      <span>✳</span><a href="#accueil" aria-label="Retour en haut">↑</a>
+    </section>
   </main>
-  <footer class="tempo-footer"><div class="tempo-wrap"><a class="tempo-brand" href="#accueil"><i>t</i> tempo<span>.</span></a><details class="tempo-credits"><summary>Crédits photo · Unsplash</summary><div><a href="https://unsplash.com/photos/hands-shaping-clay-on-a-pottery-wheel-_fxvuMucGDs" target="_blank" rel="noreferrer">Tuan Nguyen</a> · <a href="https://unsplash.com/photos/hands-shaping-clay-on-a-pottery-wheel-Y8QTLw6AphU" target="_blank" rel="noreferrer">Javier Balseiro</a> · <a href="https://unsplash.com/photos/hands-shaping-a-clay-pot-with-pottery-tools-OloJS1Eo0B4" target="_blank" rel="noreferrer">Sebastian Monroy</a> · <a href="https://unsplash.com/photos/hands-shape-a-clay-pot-on-a-pottery-wheel-BFBikYWtA9c" target="_blank" rel="noreferrer">Vitaly Gariev</a></div></details><a href="../../index.html#projets">Retour à Stanislas ↗</a></div></footer>
-  <dialog class="booking-success" id="booking-success"><button class="success-close" type="button" aria-label="Fermer">×</button><span>✳</span><p class="overline">C’EST NOTÉ</p><h2>Votre demande est partie.</h2><p id="success-copy">Nous revenons vers vous rapidement pour confirmer votre atelier.</p><button class="primary-button" type="button" id="success-done">Continuer la visite <span>↗</span></button></dialog>
+
+  <footer class="tempo-footer">
+    <div class="tempo-wrap">
+      <a class="tempo-brand" href="#accueil"><i>t</i> tempo<span>.</span></a>
+      <span>ÉTUDE DE CONCEPT FICTIVE · GESTION DE COURS</span>
+      <details class="tempo-credits">
+        <summary>Crédits photo · Unsplash</summary>
+        <div>
+          <a href="https://unsplash.com/@ginnyrose" target="_blank" rel="noreferrer">Ginny Rose Stewart</a> ·
+          <a href="https://unsplash.com/@mainermedia" target="_blank" rel="noreferrer">Dylan Gillis</a> ·
+          <a href="https://unsplash.com/@danewett" target="_blank" rel="noreferrer">Dane Wetton</a> ·
+          <a href="https://unsplash.com/@jareddrice" target="_blank" rel="noreferrer">Jared Rice</a>
+        </div>
+      </details>
+      <a href="../../index.html#projets">Retour à Stanislas ↗</a>
+    </div>
+  </footer>
+
+  <dialog class="booking-success" id="booking-success">
+    <button class="success-close" type="button" aria-label="Fermer">×</button>
+    <span>✳</span><p class="overline">C’EST NOTÉ</p>
+    <h2>Votre demande est partie.</h2>
+    <p id="success-copy">Nous revenons vers vous rapidement pour confirmer votre cours.</p>
+    <button class="primary-button" type="button" id="success-done">Continuer la visite <span>↗</span></button>
+  </dialog>
 </body>
 </html>
-
-
-
