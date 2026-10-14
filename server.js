@@ -77,7 +77,7 @@ app.delete('/api/messages/:id', authorize, (req, res) => {
 });
 
 const sessionSlots = ['09:30', '11:00', '14:30', '16:00'];
-const sessionNames = new Set(['tournage', 'modelage', 'duo']);
+const sessionNames = new Set(['vinyasa', 'yin', 'respiration']);
 const dayBookings = db.prepare("SELECT time, COUNT(*) AS count FROM bookings WHERE date = ? AND status != 'refused' GROUP BY time");
 app.get('/api/bookings/availability', (req, res) => {
   const date = typeof req.query.date === 'string' ? req.query.date : '';
@@ -131,4 +131,3 @@ app.use((req, res) => res.status(404).json({ success: false, message: 'Page intr
 if (require.main === module) app.listen(port, '0.0.0.0', () => console.log(`Portfolio prêt sur http://localhost:${port}`));
 
 module.exports = app;
-

@@ -19,13 +19,13 @@ L’accès est dans le pied de page ou à `http://localhost:4173/admin/login.htm
 
 Le workflow `.github/workflows/static.yml` publie automatiquement le site statique après un push sur `master`. Il n’inclut pas le serveur, la base de données ni les fichiers de configuration sensibles dans le site publié.
 
-GitHub Pages ne fait tourner que des fichiers statiques : pour garder le formulaire connecté à l’admin en ligne, il faut aussi héberger `server.js` et une base persistante (le fichier `railway.toml` prépare ce service), puis renseigner `apiBaseUrl` dans `config.js`, `CORS_ORIGIN` et `ADMIN_PASSWORD` dans les paramètres privés du serveur. Sur le site statique seul, le formulaire ouvre un e-mail prérempli et l’admin indique que le serveur doit être connecté.
+GitHub Pages ne fait tourner que des fichiers statiques : pour connecter le formulaire de contact et l’admin en ligne, il faut aussi héberger `server.js` et une base persistante (le fichier `railway.toml` prépare ce service), puis renseigner `apiBaseUrl` dans `config.js`, `CORS_ORIGIN` et `ADMIN_PASSWORD` dans les paramètres privés du serveur. Sur le site statique seul, le contact propose un e-mail prérempli, l’admin indique que le serveur doit être connecté, et Tempo garde ses réservations fictives dans le navigateur.
 
 Pour héberger tout le site et l’API sur un même service Node, définissez `ADMIN_PASSWORD`, utilisez `npm start` et montez un stockage persistant sur `/data` avec `DATA_DIR=/data`. Pour GitHub Pages + API, ajoutez `https://VOTRE_COMPTE.github.io` à `CORS_ORIGIN` et l’URL HTTPS du serveur dans `config.js`.
 
 ## Étude Tempo Studio
 
-Tempo Studio est une étude de concept fictive pour un atelier de céramique. La démonstration permet de choisir une date et un créneau, puis enregistre la réservation sur l’API Node/SQLite quand le serveur répond. Sans serveur, elle reste interactive dans le navigateur et affiche clairement que les données sont locales et fictives.
+Tempo Studio est une étude de concept fictive pour un studio de yoga. La démonstration permet de choisir une pratique, une date et un créneau, puis enregistre la réservation sur l’API Node/SQLite quand le serveur répond. Sans serveur, elle reste interactive dans le navigateur et conserve les demandes localement.
 
 ## Vérifications
 
@@ -34,4 +34,3 @@ Lancer `npm test` pour exécuter les vérifications API de la connexion admin, d
 ## Contact
 
 stanislas.thibaud@gmail.com
-

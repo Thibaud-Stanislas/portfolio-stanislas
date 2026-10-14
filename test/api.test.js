@@ -68,22 +68,26 @@ test('contact messages validate, persist, change status and delete', async () =>
   assert.equal((await json('/api/messages')).data.length, 0);
 });
 
-test('Tempo reservations enforce dates, required fields and session capacity', async () => {
-  const invalid = await json('/api/bookings', { method: 'POST', body: JSON.stringify({ name: 'Noémie', email: 'noemie@example.fr', date: '2020-01-01', time: '09:30', className: 'tournage' }) });
+test('Tempo yoga reservations enforce dates, courses and session capacity', async () => {
+  const invalid = await json('/api/bookings', { method: 'POST', body: JSON.stringify({ name: 'Noémie', email: 'noemie@example.fr', date: '2020-01-01', time: '09:30', className: 'vinyasa' }) });
   assert.equal(invalid.response.status, 400);
   const date = new Date();
   while ([0, 1].includes(date.getDay())) date.setDate(date.getDate() + 1);
   const iso = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   for (let i = 0; i < 8; i += 1) {
-    const last = await json('/api/bookings', { method: 'POST', body: JSON.stringify({ name: `Noémie ${i}`, email: `noemie${i}@example.fr`, date: iso, time: '09:30', className: 'tournage' }) });
+    const last = await json('/api/bookings', { method: 'POST', body: JSON.stringify({ name: `Noémie ${i}`, email: `noemie${i}@example.fr`, date: iso, time: '09:30', className: 'vinyasa' }) });
     assert.equal(last.response.status, 201);
   }
-  const full = await json('/api/bookings', { method: 'POST', body: JSON.stringify({ name: 'Camille', email: 'camille@example.fr', date: iso, time: '09:30', className: 'modelage' }) });
+  const full = await json('/api/bookings', { method: 'POST', body: JSON.stringify({ name: 'Camille', email: 'camille@example.fr', date: iso, time: '09:30', className: 'yin' }) });
   assert.equal(full.response.status, 409);
+  const legacyCourse = await json('/api/bookings', { method: 'POST', body: JSON.stringify({ name: 'Camille', email: 'camille@example.fr', date: iso, time: '11:00', className: 'tournage' }) });
+  assert.equal(legacyCourse.response.status, 400);
+  const breathing = await json('/api/bookings', { method: 'POST', body: JSON.stringify({ name: 'Camille', email: 'camille@example.fr', date: iso, time: '11:00', className: 'respiration' }) });
+  assert.equal(breathing.response.status, 201);
   const availability = await json(`/api/bookings/availability?date=${iso}`);
-  assert.equal(availability.data.bookings.length, 8);
+  assert.equal(availability.data.bookings.filter((booking) => booking.time === '09:30').length, 8);
+  assert.equal(availability.data.bookings.filter((booking) => booking.time === '11:00').length, 1);
   const protectedList = await json('/api/bookings');
   assert.equal(protectedList.response.status, 200);
-  assert.equal(protectedList.data.length, 8);
+  assert.equal(protectedList.data.length, 9);
 });
-

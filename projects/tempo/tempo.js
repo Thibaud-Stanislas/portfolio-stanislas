@@ -45,7 +45,10 @@
     renderSlots(localBookings().filter((item) => item.date === dateInput.value));
     try {
       const response = await fetch(`${apiBase}/api/bookings/availability?date=${encodeURIComponent(dateInput.value)}`);
-      if (!response.ok) return;
+      if (!response.ok) {
+        status.textContent = 'Démo interactive locale — votre demande reste enregistrée dans ce navigateur.';
+        return;
+      }
       const data = await response.json();
       renderSlots(data.bookings || []);
       status.textContent = 'Démonstration connectée au serveur de réservations.';
@@ -66,6 +69,7 @@
     let serverResponded = false;
     try {
       const response = await fetch(`${apiBase}/api/bookings`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(booking) });
+      if ([404, 405].includes(response.status)) throw new Error('API indisponible');
       serverResponded = true;
       const data = await response.json().catch(() => ({}));
       if (!response.ok) { status.textContent = data.message || 'La réservation n’a pas pu être enregistrée.'; submit.disabled = false; return; }
@@ -78,7 +82,7 @@
       }
       bookings.push({ ...booking, id: crypto.randomUUID?.() || `${Date.now()}`, status: 'pending' });
       localStorage.setItem(storageKey, JSON.stringify(bookings));
-      status.textContent = error.message === 'Failed to fetch' ? 'Demande enregistrée dans cette démonstration sur votre navigateur.' : error.message;
+      status.textContent = 'Demande enregistrée dans cette démonstration sur votre navigateur.';
     }
     const selectedCourse = form.querySelector('#class-choice').selectedOptions[0]?.textContent.split(' · ')[0] || 'votre cours';
     document.getElementById('success-copy').textContent = booking.name + ', votre demande pour ' + selectedCourse + ' du ' + new Date(booking.date + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) + ' à ' + booking.time + ' est bien enregistrée. Cette démo n’envoie pas de confirmation réelle.';
