@@ -37,6 +37,7 @@
 .gmail-setup-card strong{color:var(--admin-text)}
 .gmail-setup-card .admin-primary{max-width:270px;margin-top:18px}
 .gmail-setup-success{padding:10px 12px;border:1px solid #c4f26933;background:#c4f2690d;color:var(--admin-accent)!important}
+.gmail-setup-warning{padding:10px 12px;border-left:2px solid #e5ae63;background:#e5ae630d;color:var(--admin-muted)!important}
 .gmail-setup-status{min-height:16px;margin:10px 0 0;color:var(--admin-accent)!important;font-size:9px!important}
 .gmail-script-source{width:100%;height:190px;margin-top:12px;padding:10px;border:1px solid var(--admin-line);background:#10110f;color:var(--admin-text);font:8px/1.5 "DM Mono",monospace;white-space:pre;resize:vertical}
 @media(max-width:650px){.email-connection-banner{align-items:flex-start;flex-direction:column;padding:14px}.email-connection-action{align-self:flex-start}.conversation-thread,.reply-composer{margin-left:0}.conversation-reply-heading{align-items:flex-start;flex-direction:column;gap:3px}.conversation-reply-heading span{text-align:left}.reply-composer-footer{align-items:flex-start;flex-direction:column}.gmail-setup-card{padding:26px 20px}}
