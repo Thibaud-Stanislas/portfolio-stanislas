@@ -23,6 +23,8 @@ GitHub Pages ne fait tourner que des fichiers statiques : pour connecter le form
 
 Pour héberger tout le site et l’API sur un même service Node, définissez `ADMIN_PASSWORD`, utilisez `npm start` et montez un stockage persistant sur `/data` avec `DATA_DIR=/data`. Pour GitHub Pages + API, ajoutez `https://VOTRE_COMPTE.github.io` à `CORS_ORIGIN` et l’URL HTTPS du serveur dans `config.js`.
 
+Pour le service API séparé sur Railway, utilisez `API_ONLY=true`, `TRUST_PROXY=1`, `NODE_ENV=production`, `DATA_DIR=/data` et un volume persistant monté sur `/data`. `API_ONLY` désactive la distribution des fichiers du projet par le serveur API. `TRUST_PROXY=1` permet de distinguer les visiteurs derrière le proxy Railway pour limiter les tentatives de connexion. Renseignez `ADMIN_PASSWORD` directement dans les variables privées de Railway ; sans cette valeur, la connexion est bloquée. Connectez `config.js` à l’URL du service seulement après un déploiement réussi et un contrôle de `/api/health`.
+
 ## Étude Tempo Studio
 
 Tempo Studio est une étude de concept fictive pour un studio de yoga. La démonstration permet de choisir une pratique, une date et un créneau, puis enregistre la réservation sur l’API Node/SQLite quand le serveur répond. Sans serveur, elle reste interactive dans le navigateur et conserve les demandes localement.

@@ -9,6 +9,7 @@ const {
 const app = express();
 const port = Number(process.env.PORT) || 4173;
 const staticRoot = __dirname;
+if (process.env.TRUST_PROXY === '1') app.set('trust proxy', 1);
 
 const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',').map((origin) => origin.trim()).filter(Boolean);
 if (allowedOrigins.length) {
@@ -125,7 +126,9 @@ app.delete('/api/bookings/:id', authorize, (req, res) => {
   return res.json({ success: true });
 });
 
-app.use(express.static(staticRoot, { extensions: ['html'], dotfiles: 'ignore', index: 'index.html', maxAge: process.env.NODE_ENV === 'production' ? '1h' : 0 }));
+if (process.env.API_ONLY !== 'true') {
+  app.use(express.static(staticRoot, { extensions: ['html'], dotfiles: 'ignore', index: 'index.html', maxAge: process.env.NODE_ENV === 'production' ? '1h' : 0 }));
+}
 app.use((req, res) => res.status(404).json({ success: false, message: 'Page introuvable.' }));
 
 if (require.main === module) app.listen(port, '0.0.0.0', () => console.log(`Portfolio prêt sur http://localhost:${port}`));

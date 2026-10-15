@@ -7,6 +7,9 @@ const path = require('node:path');
 const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'portfolio-api-'));
 process.env.DATA_DIR = dataDir;
 process.env.ADMIN_PASSWORD = 'mot-de-passe-test-avec-assez-de-longueur';
+process.env.API_ONLY = 'true';
+process.env.TRUST_PROXY = '1';
+process.env.CORS_ORIGIN = 'https://thibaud-stanislas.github.io';
 const db = require('../database');
 const app = require('../server');
 let server;
@@ -46,6 +49,36 @@ test('health check and protected admin login', async () => {
   assert.equal(login.response.status, 200);
   assert.match(login.data.token, /^[a-f0-9]{64}$/);
   adminToken = login.data.token;
+});
+
+test('dedicated API hides server files and permits only the portfolio origin', async () => {
+  for (const pathname of ['/server.js', '/security.js', '/database.js', '/data/portfolio.sqlite', '/admin/login.html']) {
+    assert.equal((await json(pathname)).response.status, 404, pathname);
+  }
+  const allowed = await json('/api/messages', { method: 'OPTIONS', headers: {
+    Origin: process.env.CORS_ORIGIN,
+    'Access-Control-Request-Method': 'GET',
+    'Access-Control-Request-Headers': 'authorization'
+  } });
+  assert.equal(allowed.response.status, 204);
+  assert.equal(allowed.response.headers.get('access-control-allow-origin'), process.env.CORS_ORIGIN);
+  const denied = await json('/api/messages', { headers: { Origin: 'https://other.example' } });
+  assert.equal(denied.response.headers.get('access-control-allow-origin'), null);
+});
+
+test('an unset admin password blocks access and login limits distinguish proxy clients', async () => {
+  const configuredPassword = process.env.ADMIN_PASSWORD;
+  delete process.env.ADMIN_PASSWORD;
+  try {
+    assert.equal((await json('/api/login', { method: 'POST', body: JSON.stringify({ password: 'anything' }), headers: { 'X-Forwarded-For': '203.0.113.10' } })).response.status, 503);
+  } finally {
+    process.env.ADMIN_PASSWORD = configuredPassword;
+  }
+  for (let i = 0; i < 6; i += 1) {
+    assert.equal((await json('/api/login', { method: 'POST', body: JSON.stringify({ password: 'incorrect' }), headers: { 'X-Forwarded-For': '203.0.113.11' } })).response.status, 401);
+  }
+  assert.equal((await json('/api/login', { method: 'POST', body: JSON.stringify({ password: 'incorrect' }), headers: { 'X-Forwarded-For': '203.0.113.11' } })).response.status, 429);
+  assert.equal((await json('/api/login', { method: 'POST', body: JSON.stringify({ password: 'incorrect' }), headers: { 'X-Forwarded-For': '203.0.113.12' } })).response.status, 401);
 });
 
 test('contact messages validate, persist, change status and delete', async () => {
