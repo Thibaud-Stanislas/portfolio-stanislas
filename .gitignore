@@ -1,4 +1,5 @@
 node_modules/
+dist/
 .env
 data/*.sqlite
 data/*.sqlite-shm
@@ -6,4 +7,3 @@ data/*.sqlite-wal
 .DS_Store
 Thumbs.db
 test/data/
-

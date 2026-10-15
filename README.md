@@ -19,11 +19,23 @@ L’accès est dans le pied de page ou à `http://localhost:4173/admin/login.htm
 
 Le workflow `.github/workflows/static.yml` publie automatiquement le site statique après un push sur `master`. Il n’inclut pas le serveur, la base de données ni les fichiers de configuration sensibles dans le site publié.
 
-GitHub Pages ne fait tourner que des fichiers statiques : pour connecter le formulaire de contact et l’admin en ligne, il faut aussi héberger `server.js` et une base persistante (le fichier `railway.toml` prépare ce service), puis renseigner `apiBaseUrl` dans `config.js`, `CORS_ORIGIN` et `ADMIN_PASSWORD` dans les paramètres privés du serveur. Sur le site statique seul, le contact propose un e-mail prérempli, l’admin indique que le serveur doit être connecté, et Tempo garde ses réservations fictives dans le navigateur.
+GitHub Pages ne fait tourner que des fichiers statiques. Le dossier `functions/` prépare l’API gratuite Cloudflare Pages et `migrations/0001_initial.sql` son schéma D1. Le script `npm run build:pages` copie uniquement les fichiers publics dans `dist/`, sans inclure le serveur Node ni la base locale.
 
-Pour héberger tout le site et l’API sur un même service Node, définissez `ADMIN_PASSWORD`, utilisez `npm start` et montez un stockage persistant sur `/data` avec `DATA_DIR=/data`. Pour GitHub Pages + API, ajoutez `https://VOTRE_COMPTE.github.io` à `CORS_ORIGIN` et l’URL HTTPS du serveur dans `config.js`.
+### Mise en service Cloudflare gratuite
 
-Pour le service API séparé sur Railway, utilisez `API_ONLY=true`, `TRUST_PROXY=1`, `NODE_ENV=production`, `DATA_DIR=/data` et un volume persistant monté sur `/data`. `API_ONLY` désactive la distribution des fichiers du projet par le serveur API. `TRUST_PROXY=1` permet de distinguer les visiteurs derrière le proxy Railway pour limiter les tentatives de connexion. Renseignez `ADMIN_PASSWORD` directement dans les variables privées de Railway ; sans cette valeur, la connexion est bloquée. Connectez `config.js` à l’URL du service seulement après un déploiement réussi et un contrôle de `/api/health`.
+1. Créer un projet Cloudflare Pages relié à ce dépôt GitHub, branche `master`, commande de construction `npm run build:pages` et dossier de sortie `dist`.
+2. Créer une base D1 au forfait gratuit, l’associer au projet Pages sous le nom de liaison `DB`, puis exécuter `migrations/0001_initial.sql` dans sa console.
+3. Définir les secrets `SESSION_SECRET` et `ADMIN_SETUP_TOKEN` dans les variables privées Cloudflare (32 caractères aléatoires minimum), ainsi que `CORS_ORIGIN=https://thibaud-stanislas.github.io`.
+4. Régler `apiBaseUrl` dans `config.js` vers l’adresse `pages.dev` du projet Cloudflare. Le même site servi par Cloudflare utilise son API sur la même origine.
+5. Après publication, ouvrir `admin/create-account.html`, utiliser le code initial à usage unique, créer l’adresse et le mot de passe de l’unique compte, puis retirer `ADMIN_SETUP_TOKEN` des secrets Cloudflare.
+
+L’inscription se ferme dès que le premier compte propriétaire existe. Les secrets restent dans les paramètres privés Cloudflare et ne sont jamais inscrits au dépôt.
+
+Le forfait Cloudflare Free n’a pas d’abonnement mensuel. Il applique des quotas gratuits : si un quota est dépassé, les fonctions concernées peuvent répondre en erreur jusqu’à sa remise à zéro. Ne pas passer au forfait payant pour ce portfolio.
+
+## Serveur local Node
+
+Pour prévisualiser l’ancienne API Node en local, définissez `ADMIN_PASSWORD` puis lancez `npm start`. Le formulaire de connexion accepte toujours ce mode local. Le flux de création du compte et la persistance D1 sont disponibles dans la configuration Cloudflare Pages.
 
 ## Étude Tempo Studio
 
@@ -31,7 +43,7 @@ Tempo Studio est une étude de concept fictive pour un studio de yoga. La démon
 
 ## Vérifications
 
-Lancer `npm test` pour exécuter les vérifications API de la connexion admin, de la validation et du traitement des messages, ainsi que des règles de réservation. La navigation mobile, le mode sombre, les filtres de projets, l’admin et les formulaires ont aussi été vérifiés dans le navigateur.
+Lancer `npm test` pour exécuter les vérifications de l’API Node locale et de l’API Cloudflare/D1, notamment l’inscription unique, la connexion, les sessions, les messages, les réservations et le contrôle d’origine. `npm run build:pages` prépare les fichiers publics Cloudflare.
 
 ## Contact
 
