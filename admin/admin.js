@@ -66,7 +66,22 @@
       const readState = document.createElement('span'); readState.className = `message-badge ${message.is_read ? '' : 'unread'}`; readState.textContent = message.is_read ? 'LU' : 'NON LU'; badges.append(state, readState);
       const body = document.createElement('p'); body.className = 'message-body'; body.textContent = message.message;
       const actions = document.createElement('div'); actions.className = 'message-actions';
-      const reply = document.createElement('a'); reply.className = 'message-action primary-action'; reply.textContent = 'Répondre ↗'; reply.href = `mailto:${encodeURIComponent(message.email)}?subject=${encodeURIComponent('Votre demande de contact')}`;
+      const reply = document.createElement('a');
+      reply.className = 'message-action primary-action';
+      reply.textContent = 'Répondre ↗';
+      const recipient = encodeURIComponent(message.email).replace(/%40/gi, '@');
+      reply.href = 'mailto:' + recipient + '?subject=' + encodeURIComponent('Re: Votre demande de contact');
+      reply.title = 'Ouvrir votre messagerie. Si rien ne s’ouvre, l’adresse sera copiée.';
+      reply.addEventListener('click', () => {
+        toast('Ouverture de votre messagerie…');
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText(message.email)
+            .then(() => toast('Adresse e-mail copiée. Si la messagerie ne s’ouvre pas, collez-la dans votre messagerie.'))
+            .catch(() => toast('Si rien ne s’ouvre, écrivez à ' + message.email + '.'));
+        } else {
+          toast('Si rien ne s’ouvre, écrivez à ' + message.email + '.');
+        }
+      });
       actions.append(reply);
       actions.append(createAction(message.is_processed ? 'Remettre à traiter' : 'Marquer comme traité', '', () => updateMessage(message.id, message.is_processed ? 'unprocessed' : 'processed')));
       actions.append(createAction(message.is_read ? 'Marquer comme non lu' : 'Marquer comme lu', '', () => updateMessage(message.id, message.is_read ? 'unread' : 'read')));
