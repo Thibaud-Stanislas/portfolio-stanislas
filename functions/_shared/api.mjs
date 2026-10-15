@@ -3,6 +3,50 @@ const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 const RATE_WINDOW_MS = 15 * 60 * 1000;
 const SESSION_SLOTS = ['09:30', '11:00', '14:30', '16:00'];
 const SESSION_NAMES = new Set(['vinyasa', 'yin', 'respiration']);
+const PORTFOLIO_ORIGINS = new Set(['https://thibaud-stanislas.github.io']);
+const emailSchemaReady = new WeakMap();
+
+const EMAIL_SCHEMA = [
+  `CREATE TABLE IF NOT EXISTS message_replies (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    message_id INTEGER NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+    direction TEXT NOT NULL CHECK (direction IN ('outbound', 'inbound')),
+    body TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'sending', 'sent', 'received', 'failed')),
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    sent_at TEXT,
+    gmail_message_id TEXT,
+    last_error TEXT,
+    claimed_at TEXT
+  )`,
+  'CREATE UNIQUE INDEX IF NOT EXISTS idx_message_replies_gmail_message_id ON message_replies(gmail_message_id) WHERE gmail_message_id IS NOT NULL',
+  `CREATE TABLE IF NOT EXISTS message_email_threads (
+    message_id INTEGER PRIMARY KEY REFERENCES messages(id) ON DELETE CASCADE,
+    gmail_thread_id TEXT NOT NULL UNIQUE,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  )`,
+  `CREATE TABLE IF NOT EXISTS email_bridge (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    pairing_hash TEXT,
+    pairing_expires_at TEXT,
+    token_hash TEXT,
+    google_email TEXT,
+    connected_at TEXT,
+    last_sync_at TEXT
+  )`
+];
+
+async function ensureEmailSchema(db) {
+  let ready = emailSchemaReady.get(db);
+  if (!ready) {
+    ready = (async () => {
+      for (const statement of EMAIL_SCHEMA) await db.prepare(statement).run();
+    })();
+    emailSchemaReady.set(db, ready);
+  }
+  try { await ready; }
+  catch (cause) { emailSchemaReady.delete(db); throw cause; }
+}
 
 function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), {
@@ -46,7 +90,7 @@ function originIsAllowed(request, env) {
   if (!origin) return true;
   if (origin === new URL(request.url).origin) return true;
   const configured = (env.CORS_ORIGIN || '').split(',').map((item) => item.trim()).filter(Boolean);
-  return configured.includes(origin);
+  return PORTFOLIO_ORIGINS.has(origin) || configured.includes(origin);
 }
 
 function withSecurityHeaders(request, env, response) {
@@ -222,6 +266,189 @@ async function createBooking(request, env) {
   return json({ success: true, id: result.id, message: 'Demande enregistrée.' }, 201);
 }
 
+function randomSecret(length = 32) {
+  return bytesToBase64Url(crypto.getRandomValues(new Uint8Array(length)));
+}
+
+async function createEmailPairing(request, env, adminEmail) {
+  await ensureEmailSchema(env.DB);
+  const code = randomSecret(24);
+  const expiresAt = Date.now() + 15 * 60 * 1000;
+  const digest = bytesToBase64Url(await hmac(env.SESSION_SECRET, code));
+  await env.DB.prepare(`
+    INSERT INTO email_bridge (id, pairing_hash, pairing_expires_at, token_hash, google_email, connected_at, last_sync_at)
+    VALUES (1, ?, ?, NULL, NULL, NULL, NULL)
+    ON CONFLICT(id) DO UPDATE SET pairing_hash = excluded.pairing_hash,
+      pairing_expires_at = excluded.pairing_expires_at, token_hash = NULL,
+      google_email = NULL, connected_at = NULL, last_sync_at = NULL
+  `).bind(digest, expiresAt).run();
+  return json({ success: true, pairingCode: code, apiBaseUrl: new URL(request.url).origin, expiresAt });
+}
+
+async function completeEmailPairing(request, env) {
+  await ensureEmailSchema(env.DB);
+  const parsed = await readBody(request);
+  if (parsed.error) return parsed.error;
+  const { pairingCode, accountEmail } = parsed.body || {};
+  if (typeof pairingCode !== 'string' || pairingCode.length < 30 || pairingCode.length > 100 || typeof accountEmail !== 'string' || !validEmail(accountEmail)) {
+    return error(400, 'La connexion Gmail est incomplète. Reprenez depuis la page admin.');
+  }
+  const account = await env.DB.prepare('SELECT email FROM admin_accounts WHERE id = 1').first();
+  if (!account) return error(409, 'Le compte administrateur n’est pas encore créé.');
+  if (account.email.toLowerCase() !== accountEmail.trim().toLowerCase()) {
+    return error(403, 'Utilisez dans Google Apps Script la même adresse que celle du compte administrateur.');
+  }
+  const token = randomSecret(32);
+  const pairingHash = bytesToBase64Url(await hmac(env.SESSION_SECRET, pairingCode));
+  const tokenHash = bytesToBase64Url(await hmac(env.SESSION_SECRET, token));
+  const result = await env.DB.prepare(`
+    UPDATE email_bridge SET pairing_hash = NULL, pairing_expires_at = NULL,
+      token_hash = ?, google_email = ?, connected_at = datetime('now'), last_sync_at = datetime('now')
+    WHERE id = 1 AND pairing_hash = ? AND pairing_expires_at > ?
+  `).bind(tokenHash, accountEmail.trim().toLowerCase(), pairingHash, Date.now()).run();
+  if (!result.meta?.changes) return error(401, 'Ce code a expiré ou a déjà été utilisé. Relancez la connexion depuis la page admin.');
+  return json({ success: true, token, accountEmail: account.email });
+}
+
+async function authenticateEmailBridge(request, env) {
+  const match = /^Bearer ([A-Za-z0-9_-]{40,})$/.exec(request.headers.get('Authorization') || '');
+  if (!match) return false;
+  const row = await env.DB.prepare('SELECT token_hash FROM email_bridge WHERE id = 1').first();
+  if (!row?.token_hash) return false;
+  const candidate = bytesToBase64Url(await hmac(env.SESSION_SECRET, match[1]));
+  return constantTimeEqual(candidate, row.token_hash);
+}
+
+async function emailBridgeServiceRoute(request, env, pathname, method) {
+  await ensureEmailSchema(env.DB);
+  if (pathname === '/api/email/bridge/sync/outbox/claim' && method === 'POST') {
+    await env.DB.prepare('UPDATE email_bridge SET last_sync_at = datetime(\'now\') WHERE id = 1').run();
+    const candidates = await env.DB.prepare(`
+      SELECT r.id, r.message_id, r.body, m.name, m.email,
+        (SELECT gmail_thread_id FROM message_email_threads WHERE message_id = m.id) AS gmail_thread_id
+      FROM message_replies r JOIN messages m ON m.id = r.message_id
+      WHERE r.direction = 'outbound' AND (
+        r.status = 'pending' OR
+        (r.status = 'sending' AND r.claimed_at < datetime('now', '-10 minutes'))
+      ) ORDER BY r.id ASC LIMIT 8
+    `).all();
+    const claimed = [];
+    for (const item of candidates.results || []) {
+      const result = await env.DB.prepare(`
+        UPDATE message_replies SET status = 'sending', claimed_at = datetime('now'), last_error = NULL
+        WHERE id = ? AND (status = 'pending' OR (status = 'sending' AND claimed_at < datetime('now', '-10 minutes')))
+      `).bind(item.id).run();
+      if (result.meta?.changes) claimed.push({
+        id: item.id, messageId: item.message_id, name: item.name, email: item.email,
+        body: item.body, gmailThreadId: item.gmail_thread_id || null
+      });
+    }
+    return json({ success: true, replies: claimed });
+  }
+
+  let match = /^\/api\/email\/bridge\/sync\/outbox\/(\d+)\/(sent|failed)$/.exec(pathname);
+  if (match && method === 'POST') {
+    const id = safeId(match[1]);
+    const parsed = await readBody(request);
+    if (parsed.error) return parsed.error;
+    if (!id) return error(400, 'Identifiant invalide.');
+    if (match[2] === 'failed') {
+      const message = typeof parsed.body?.message === 'string' ? parsed.body.message.trim().slice(0, 240) : 'Gmail n’a pas pu envoyer cette réponse.';
+      const result = await env.DB.prepare(`
+        UPDATE message_replies SET status = 'failed', last_error = ?, claimed_at = NULL
+        WHERE id = ? AND direction = 'outbound'
+      `).bind(message || 'Gmail n’a pas pu envoyer cette réponse.', id).run();
+      if (!result.meta?.changes) return error(404, 'Réponse introuvable.');
+      return json({ success: true });
+    }
+    const { gmailThreadId = null, gmailMessageId = null } = parsed.body || {};
+    if ((gmailThreadId !== null && (typeof gmailThreadId !== 'string' || gmailThreadId.length > 512)) || (gmailMessageId !== null && (typeof gmailMessageId !== 'string' || gmailMessageId.length > 512))) {
+      return error(400, 'Les informations du fil Gmail sont invalides.');
+    }
+    const reply = await env.DB.prepare('SELECT message_id FROM message_replies WHERE id = ? AND direction = \'outbound\'').bind(id).first();
+    if (!reply) return error(404, 'Réponse introuvable.');
+    const result = await env.DB.prepare(`
+      UPDATE message_replies SET status = 'sent', sent_at = datetime('now'),
+        gmail_message_id = ?, last_error = NULL, claimed_at = NULL WHERE id = ?
+    `).bind(gmailMessageId, id).run();
+    if (gmailThreadId) {
+      await env.DB.prepare(`
+        INSERT INTO message_email_threads (message_id, gmail_thread_id, updated_at) VALUES (?, ?, datetime('now'))
+        ON CONFLICT(message_id) DO UPDATE SET gmail_thread_id = excluded.gmail_thread_id, updated_at = excluded.updated_at
+      `).bind(reply.message_id, gmailThreadId).run();
+    }
+    await env.DB.prepare('UPDATE email_bridge SET last_sync_at = datetime(\'now\') WHERE id = 1').run();
+    return json({ success: true, sent: Boolean(result.meta?.changes) });
+  }
+
+  if (pathname === '/api/email/bridge/sync/conversations' && method === 'GET') {
+    await env.DB.prepare('UPDATE email_bridge SET last_sync_at = datetime(\'now\') WHERE id = 1').run();
+    const threads = await env.DB.prepare(`
+      SELECT DISTINCT m.id AS message_id, m.email, m.name, t.gmail_thread_id
+      FROM messages m JOIN message_replies r ON r.message_id = m.id
+      LEFT JOIN message_email_threads t ON t.message_id = m.id
+      WHERE r.direction = 'outbound' AND r.status = 'sent'
+      ORDER BY m.id ASC
+    `).all();
+    const conversations = [];
+    for (const item of threads.results || []) {
+      const known = await env.DB.prepare('SELECT gmail_message_id FROM message_replies WHERE message_id = ? AND gmail_message_id IS NOT NULL').bind(item.message_id).all();
+      conversations.push({
+        messageId: item.message_id, email: item.email, name: item.name,
+        gmailThreadId: item.gmail_thread_id || null,
+        knownMessageIds: (known.results || []).map((row) => row.gmail_message_id)
+      });
+    }
+    return json({ success: true, conversations });
+  }
+
+  match = /^\/api\/email\/bridge\/sync\/conversations\/(\d+)\/thread$/.exec(pathname);
+  if (match && method === 'POST') {
+    const messageId = safeId(match[1]);
+    const parsed = await readBody(request);
+    if (parsed.error) return parsed.error;
+    const threadId = parsed.body?.gmailThreadId;
+    if (!messageId || typeof threadId !== 'string' || !threadId || threadId.length > 512) return error(400, 'Fil Gmail invalide.');
+    const active = await env.DB.prepare(`SELECT id FROM message_replies WHERE message_id = ? AND direction = 'outbound' AND status = 'sent' LIMIT 1`).bind(messageId).first();
+    if (!active) return error(404, 'Conversation introuvable.');
+    await env.DB.prepare(`
+      INSERT INTO message_email_threads (message_id, gmail_thread_id, updated_at) VALUES (?, ?, datetime('now'))
+      ON CONFLICT(message_id) DO UPDATE SET gmail_thread_id = excluded.gmail_thread_id, updated_at = excluded.updated_at
+    `).bind(messageId, threadId).run();
+    return json({ success: true });
+  }
+
+  if (pathname === '/api/email/bridge/sync/incoming' && method === 'POST') {
+    const parsed = await readBody(request);
+    if (parsed.error) return parsed.error;
+    const { messageId, gmailThreadId, gmailMessageId, from, body, receivedAt } = parsed.body || {};
+    const id = safeId(messageId);
+    const cleanFrom = typeof from === 'string' ? from.trim().toLowerCase() : '';
+    const cleanBody = typeof body === 'string' ? body.trim() : '';
+    const receivedDate = typeof receivedAt === 'string' ? new Date(receivedAt) : null;
+    if (!id || !validEmail(cleanFrom) || typeof gmailThreadId !== 'string' || !gmailThreadId || typeof gmailMessageId !== 'string' || !gmailMessageId || !cleanBody || cleanBody.length > 20000 || !receivedDate || Number.isNaN(receivedDate.getTime())) {
+      return error(400, 'La réponse reçue est incomplète ou invalide.');
+    }
+    const conversation = await env.DB.prepare(`
+      SELECT m.email, t.gmail_thread_id FROM messages m
+      JOIN message_email_threads t ON t.message_id = m.id WHERE m.id = ?
+    `).bind(id).first();
+    if (!conversation) return error(404, 'Conversation introuvable.');
+    if (conversation.gmail_thread_id !== gmailThreadId || conversation.email.toLowerCase() !== cleanFrom) return error(403, 'Cette réponse ne correspond pas à la conversation.');
+    const result = await env.DB.prepare(`
+      INSERT OR IGNORE INTO message_replies (message_id, direction, body, status, created_at, gmail_message_id)
+      VALUES (?, 'inbound', ?, 'received', ?, ?)
+    `).bind(id, cleanBody, receivedDate.toISOString(), gmailMessageId).run();
+    if (result.meta?.changes) {
+      await env.DB.prepare('UPDATE messages SET is_read = 0, is_processed = 0 WHERE id = ?').bind(id).run();
+    }
+    await env.DB.prepare('UPDATE email_bridge SET last_sync_at = datetime(\'now\') WHERE id = 1').run();
+    return json({ success: true, received: Boolean(result.meta?.changes) });
+  }
+
+  return error(404, 'Route de synchronisation introuvable.');
+}
+
 async function route(request, env) {
   const { pathname, searchParams } = new URL(request.url);
   const method = request.method.toUpperCase();
@@ -237,6 +464,12 @@ async function route(request, env) {
   if (pathname === '/api/messages' && method === 'POST') return contact(request, env);
   if (pathname === '/api/bookings' && method === 'POST') return createBooking(request, env);
 
+  if (pathname === '/api/email/bridge/pair' && method === 'POST') return completeEmailPairing(request, env);
+  if (pathname.startsWith('/api/email/bridge/sync/')) {
+    if (!await authenticateEmailBridge(request, env)) return error(401, 'La connexion Gmail a expiré. Reconnectez Gmail depuis la page admin.');
+    return emailBridgeServiceRoute(request, env, pathname, method);
+  }
+
   if (pathname === '/api/bookings/availability' && method === 'GET') {
     const date = searchParams.get('date') || '';
     if (!dateIsValid(date)) return error(400, 'Date invalide.');
@@ -248,11 +481,71 @@ async function route(request, env) {
   const email = await authenticate(request, env.SESSION_SECRET);
   if (!email) return error(401, 'Session expirée. Reconnectez-vous.');
 
-  if (pathname === '/api/messages' && method === 'GET') {
-    const messages = await env.DB.prepare('SELECT id, name, email, message, created_at, is_read, is_processed FROM messages ORDER BY created_at DESC, id DESC').all();
-    return json(messages.results || []);
+  if (pathname === '/api/email/bridge/pairing' && method === 'POST') return createEmailPairing(request, env, email);
+  if (pathname === '/api/email/bridge/status' && method === 'GET') {
+    await ensureEmailSchema(env.DB);
+    const bridge = await env.DB.prepare('SELECT token_hash, google_email, connected_at, last_sync_at FROM email_bridge WHERE id = 1').first();
+    return json({
+      success: true,
+      connected: Boolean(bridge?.token_hash),
+      adminEmail: email,
+      googleEmail: bridge?.google_email || null,
+      connectedAt: bridge?.connected_at || null,
+      lastSyncAt: bridge?.last_sync_at || null
+    });
   }
-  let match = /^\/api\/messages\/(\d+)\/(read|unread|processed|unprocessed)$/.exec(pathname);
+  if (pathname === '/api/email/bridge/disconnect' && method === 'POST') {
+    await ensureEmailSchema(env.DB);
+    await env.DB.prepare('UPDATE email_bridge SET pairing_hash = NULL, pairing_expires_at = NULL, token_hash = NULL, google_email = NULL, connected_at = NULL, last_sync_at = NULL WHERE id = 1').run();
+    return json({ success: true });
+  }
+
+  let match = /^\/api\/messages\/(\d+)\/replies$/.exec(pathname);
+  if (match && method === 'POST') {
+    await ensureEmailSchema(env.DB);
+    const id = safeId(match[1]);
+    const parsed = await readBody(request);
+    if (parsed.error) return parsed.error;
+    const body = typeof parsed.body?.body === 'string' ? parsed.body.body.trim() : '';
+    if (!id || !body || body.length > 5000) return error(400, 'Écrivez une réponse de 1 à 5 000 caractères.');
+    const bridge = await env.DB.prepare('SELECT token_hash FROM email_bridge WHERE id = 1').first();
+    if (!bridge?.token_hash) return error(409, 'Reliez Gmail dans la page admin avant d’envoyer une réponse.');
+    const message = await env.DB.prepare('SELECT id FROM messages WHERE id = ?').bind(id).first();
+    if (!message) return error(404, 'Message introuvable.');
+    const result = await env.DB.prepare(`
+      INSERT INTO message_replies (message_id, direction, body, status) VALUES (?, 'outbound', ?, 'pending')
+    `).bind(id, body).run();
+    await env.DB.prepare('UPDATE messages SET is_processed = 1 WHERE id = ?').bind(id).run();
+    return json({ success: true, replyId: result.meta?.last_row_id, status: 'pending' }, 201);
+  }
+
+  match = /^\/api\/messages\/(\d+)\/replies\/(\d+)\/retry$/.exec(pathname);
+  if (match && method === 'POST') {
+    await ensureEmailSchema(env.DB);
+    const messageId = safeId(match[1]); const replyId = safeId(match[2]);
+    if (!messageId || !replyId) return error(400, 'Identifiant invalide.');
+    const bridge = await env.DB.prepare('SELECT token_hash FROM email_bridge WHERE id = 1').first();
+    if (!bridge?.token_hash) return error(409, 'Reliez Gmail dans la page admin avant de réessayer.');
+    const result = await env.DB.prepare(`
+      UPDATE message_replies SET status = 'pending', last_error = NULL, claimed_at = NULL
+      WHERE id = ? AND message_id = ? AND direction = 'outbound' AND status = 'failed'
+    `).bind(replyId, messageId).run();
+    if (!result.meta?.changes) return error(409, 'Cette réponse ne peut pas être relancée. Actualisez la page.');
+    return json({ success: true, status: 'pending' });
+  }
+
+  if (pathname === '/api/messages' && method === 'GET') {
+    await ensureEmailSchema(env.DB);
+    const messages = await env.DB.prepare('SELECT id, name, email, message, created_at, is_read, is_processed FROM messages ORDER BY created_at DESC, id DESC').all();
+    const replies = await env.DB.prepare('SELECT id, message_id, direction, body, status, created_at, sent_at, last_error FROM message_replies ORDER BY created_at ASC, id ASC').all();
+    const byMessage = new Map();
+    for (const reply of replies.results || []) {
+      if (!byMessage.has(reply.message_id)) byMessage.set(reply.message_id, []);
+      byMessage.get(reply.message_id).push(reply);
+    }
+    return json((messages.results || []).map((item) => ({ ...item, replies: byMessage.get(item.id) || [] })));
+  }
+  match = /^\/api\/messages\/(\d+)\/(read|unread|processed|unprocessed)$/.exec(pathname);
   if (match && method === 'PATCH') {
     const columns = { read: ['is_read', 1], unread: ['is_read', 0], processed: ['is_processed', 1], unprocessed: ['is_processed', 0] };
     const [column, value] = columns[match[2]];
@@ -303,3 +596,4 @@ export async function handlePortfolioRequest(request, env = {}) {
     return withSecurityHeaders(request, env, error(500, 'Une erreur est survenue. Réessayez plus tard.'));
   }
 }
+

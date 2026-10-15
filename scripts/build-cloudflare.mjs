@@ -13,7 +13,7 @@ if (path.dirname(output) !== root || path.basename(output) !== 'dist') {
 const files = [
   'index.html', 'styles.css', 'app.js', 'config.js', 'favicon.svg', '.nojekyll',
   'admin/login.html', 'admin/index.html', 'admin/create-account.html',
-  'admin/admin.css', 'admin/login.js', 'admin/create-account.js', 'admin/admin.js',
+  'admin/admin.css', 'admin/email.css', 'admin/login.js', 'admin/create-account.js', 'admin/admin.js', 'admin/gmail-bridge.gs',
   'projects/tempo/index.html', 'projects/tempo/tempo.css',
   'projects/tempo/tempo-redesign.css', 'projects/tempo/tempo.js',
   'projects/atelier-oree/index.html', 'projects/atelier-oree/oree.css',
@@ -38,3 +38,4 @@ for (const directory of directories) {
   await cp(path.join(root, directory), path.join(output, directory), { recursive: true });
 }
 console.log('Cloudflare Pages static assets prepared in dist/; server-only files and local data excluded.');
+

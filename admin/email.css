@@ -1,0 +1,43 @@
+.email-connection-banner{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 20px;padding:16px 18px;border:1px solid rgba(196,242,105,.28);background:linear-gradient(115deg,#1a2015,#191b17)}
+.email-connection-banner.is-connected{border-color:rgba(196,242,105,.2);background:#171a14}
+.email-connection-banner.has-error{border-color:rgba(228,133,121,.32)}
+.email-connection-copy{min-width:0}
+.email-connection-copy strong{display:block;font:600 12px "Manrope",sans-serif;color:var(--admin-text)}
+.email-connection-copy p{margin:4px 0 0;color:var(--admin-muted);font-size:9px;line-height:1.7}
+.email-connection-action{flex:none;color:var(--admin-accent);border-color:#c4f26945}
+.conversation-thread{margin:0 0 14px 42px;padding:13px 14px;border:1px solid var(--admin-line);background:#141612;max-width:800px}
+.conversation-thread-label{margin:0 0 9px;color:var(--admin-muted);font:8px "DM Mono",monospace;letter-spacing:.7px}
+.conversation-reply{padding:10px 11px;margin-top:7px;border-left:2px solid #757a69;background:#1a1c18}
+.conversation-reply.is-outbound{border-left-color:var(--admin-accent);background:#1b2017}
+.conversation-reply.has-failed{border-left-color:var(--admin-danger)}
+.conversation-reply-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.conversation-reply-heading strong{font-size:9px;font-weight:600}
+.conversation-reply-heading span{color:var(--admin-muted);font:7px "DM Mono",monospace;text-align:right}
+.conversation-reply-body{margin:7px 0 0;color:#c5c8bb;font-size:9px;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere}
+.conversation-reply-error{margin:7px 0 0;color:var(--admin-danger);font-size:8px}
+.conversation-retry{margin-top:9px}
+.reply-composer{margin:13px 0 4px 42px;padding:14px;border:1px solid rgba(196,242,105,.25);background:#171914;max-width:800px}
+.reply-composer label{display:block;margin-bottom:8px;color:var(--admin-text);font-size:9px;font-weight:600}
+.reply-composer textarea{display:block;width:100%;min-height:104px;resize:vertical;padding:11px 12px;border:1px solid var(--admin-line);outline:0;background:#10110f;color:var(--admin-text);font:10px/1.7 "DM Sans",Arial,sans-serif}
+.reply-composer textarea:focus{border-color:#c4f26980}
+.reply-composer textarea::placeholder{color:#777b70}
+.reply-composer-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px}
+.reply-composer-footer>span{color:var(--admin-muted);font-size:8px}
+.reply-composer-footer button:disabled,.email-connection-action:disabled{opacity:.5;cursor:not-allowed}
+.gmail-setup-modal{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:20px}
+.gmail-setup-modal[hidden]{display:none}
+.gmail-setup-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(5px)}
+.gmail-setup-card{position:relative;width:min(540px,100%);max-height:min(86vh,760px);overflow:auto;padding:30px;background:#171914;border:1px solid #ffffff22;box-shadow:0 30px 100px #0008}
+.gmail-setup-close{position:absolute;top:13px;right:15px;width:32px;height:32px;border:1px solid var(--admin-line);background:transparent;color:var(--admin-muted);font-size:19px;cursor:pointer}
+.gmail-setup-card h2{margin:0 0 12px;font:600 23px "Manrope",sans-serif;letter-spacing:-.8px}
+.gmail-setup-card p,.gmail-setup-card li{color:var(--admin-muted);font-size:10px;line-height:1.8}
+.gmail-setup-card ol{padding-left:19px;margin:16px 0}
+.gmail-setup-card li{padding:3px 0}
+.gmail-setup-card a{color:var(--admin-accent);text-decoration:underline;text-underline-offset:3px}
+.gmail-setup-card strong{color:var(--admin-text)}
+.gmail-setup-card .admin-primary{max-width:270px;margin-top:18px}
+.gmail-setup-success{padding:10px 12px;border:1px solid #c4f26933;background:#c4f2690d;color:var(--admin-accent)!important}
+.gmail-setup-status{min-height:16px;margin:10px 0 0;color:var(--admin-accent)!important;font-size:9px!important}
+.gmail-script-source{width:100%;height:190px;margin-top:12px;padding:10px;border:1px solid var(--admin-line);background:#10110f;color:var(--admin-text);font:8px/1.5 "DM Mono",monospace;white-space:pre;resize:vertical}
+@media(max-width:650px){.email-connection-banner{align-items:flex-start;flex-direction:column;padding:14px}.email-connection-action{align-self:flex-start}.conversation-thread,.reply-composer{margin-left:0}.conversation-reply-heading{align-items:flex-start;flex-direction:column;gap:3px}.conversation-reply-heading span{text-align:left}.reply-composer-footer{align-items:flex-start;flex-direction:column}.gmail-setup-card{padding:26px 20px}}
+

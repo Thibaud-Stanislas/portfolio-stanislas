@@ -29,7 +29,7 @@ jobs:
         run: |
           mkdir -p site/admin site/projects/tempo site/projects/atelier-oree site/projects/escale
           cp index.html styles.css app.js config.js favicon.svg .nojekyll site/
-          cp admin/login.html admin/index.html admin/create-account.html admin/admin.css admin/login.js admin/create-account.js admin/admin.js site/admin/
+          cp admin/login.html admin/index.html admin/create-account.html admin/admin.css admin/email.css admin/login.js admin/create-account.js admin/admin.js admin/gmail-bridge.gs site/admin/
           cp projects/tempo/index.html projects/tempo/tempo.css projects/tempo/tempo-redesign.css projects/tempo/tempo.js site/projects/tempo/
           cp -R projects/tempo/images site/projects/tempo/
           cp projects/atelier-oree/index.html projects/atelier-oree/oree.css projects/atelier-oree/oree.js site/projects/atelier-oree/
@@ -43,4 +43,5 @@ jobs:
       - name: Publier
         id: deployment
         uses: actions/deploy-pages@v4
+
 

@@ -111,12 +111,66 @@ test('Cloudflare API: login, signed sessions, and protected message management',
   assert.equal((await call(env, '/api/messages', { token })).data.length, 0);
 });
 
+test('Cloudflare API: Gmail pairing, queued replies, and incoming email are protected and deduplicated', async (t) => {
+  const env = makeEnv();
+  t.after(() => env.DB.close());
+  await makeAdmin(env);
+  const login = await call(env, '/api/login', { method: 'POST', body: { email: 'stanislas@example.fr', password: 'phrase-secrete-de-test-2026!' } });
+  const adminToken = login.data.token;
+
+  let result = await call(env, '/api/email/bridge/pairing', { method: 'POST', token: adminToken });
+  assert.equal(result.response.status, 200);
+  assert.equal(result.data.pairingCode.length, 32);
+  assert.equal((await call(env, '/api/email/bridge/pair', { method: 'POST', body: { pairingCode: result.data.pairingCode, accountEmail: 'different@example.fr' } })).response.status, 403);
+  const paired = await call(env, '/api/email/bridge/pair', { method: 'POST', body: { pairingCode: result.data.pairingCode, accountEmail: 'stanislas@example.fr' } });
+  assert.equal(paired.response.status, 200);
+  const bridgeToken = paired.data.token;
+  assert.ok(bridgeToken);
+  assert.equal((await call(env, '/api/email/bridge/status', { token: adminToken })).data.connected, true);
+
+  const contact = await call(env, '/api/messages', { method: 'POST', body: { name: 'Camille Martin', email: 'camille@example.fr', message: 'J’aimerais créer un site vitrine.' } });
+  const messageId = contact.data.id;
+  result = await call(env, `/api/messages/${messageId}/replies`, { method: 'POST', token: adminToken, body: { body: 'Bonjour Camille, parlons de votre projet.' } });
+  assert.equal(result.response.status, 201);
+  const replyId = result.data.replyId;
+
+  result = await call(env, '/api/email/bridge/sync/outbox/claim', { method: 'POST', token: bridgeToken, body: {} });
+  assert.equal(result.data.replies.length, 1);
+  assert.equal(result.data.replies[0].id, replyId);
+  assert.equal(result.data.replies[0].email, 'camille@example.fr');
+  result = await call(env, `/api/email/bridge/sync/outbox/${replyId}/sent`, { method: 'POST', token: bridgeToken, body: { gmailThreadId: 'thread-camille-1', gmailMessageId: 'gmail-sent-1' } });
+  assert.equal(result.response.status, 200);
+
+  result = await call(env, '/api/email/bridge/sync/conversations', { token: bridgeToken });
+  assert.equal(result.data.conversations[0].gmailThreadId, 'thread-camille-1');
+  assert.deepEqual(result.data.conversations[0].knownMessageIds, ['gmail-sent-1']);
+  const incoming = { messageId, gmailThreadId: 'thread-camille-1', gmailMessageId: 'gmail-in-1', from: 'camille@example.fr', body: 'Merci, je vous réponds demain.', receivedAt: new Date().toISOString() };
+  result = await call(env, '/api/email/bridge/sync/incoming', { method: 'POST', token: bridgeToken, body: incoming });
+  assert.equal(result.data.received, true);
+  result = await call(env, '/api/email/bridge/sync/incoming', { method: 'POST', token: bridgeToken, body: incoming });
+  assert.equal(result.data.received, false);
+  assert.equal((await call(env, '/api/email/bridge/sync/incoming', { method: 'POST', token: bridgeToken, body: { ...incoming, gmailMessageId: 'gmail-in-2', from: 'intrus@example.fr' } })).response.status, 403);
+
+  result = await call(env, '/api/messages', { token: adminToken });
+  assert.equal(result.data[0].is_read, 0);
+  assert.equal(result.data[0].is_processed, 0);
+  assert.deepEqual(result.data[0].replies.map((reply) => reply.direction), ['outbound', 'inbound']);
+  assert.equal(result.data[0].replies[1].body, 'Merci, je vous réponds demain.');
+
+  await call(env, '/api/email/bridge/disconnect', { method: 'POST', token: adminToken, body: {} });
+  assert.equal((await call(env, '/api/email/bridge/sync/conversations', { token: bridgeToken })).response.status, 401);
+});
+
 test('Cloudflare API: CORS rejects unrelated origins and health reports a working database', async (t) => {
   const env = makeEnv();
   t.after(() => env.DB.close());
   let result = await call(env, '/api/health');
   assert.equal(result.response.status, 200);
   assert.equal(result.data.service, 'portfolio-api');
+  env.CORS_ORIGIN = '';
+  result = await call(env, '/api/health', { origin: siteOrigin });
+  assert.equal(result.response.status, 200);
+  assert.equal(result.response.headers.get('Access-Control-Allow-Origin'), siteOrigin);
   result = await call(env, '/api/health', { origin: 'https://unexpected.example' });
   assert.equal(result.response.status, 403);
   result = await call(env, '/api/health', { method: 'OPTIONS' });
@@ -148,3 +202,4 @@ test('Cloudflare API: Tempo reservations are public, validate dates, expose avai
   assert.equal(result.data.length, 8);
   assert.equal((await call(env, `/api/bookings/${result.data[0].id}/status`, { method: 'PATCH', token: adminToken, body: { status: 'confirmed' } })).response.status, 200);
 });
+

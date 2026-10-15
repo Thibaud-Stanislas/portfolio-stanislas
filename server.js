@@ -54,10 +54,23 @@ app.post('/api/messages', (req, res) => {
   return res.status(201).json({ success: true, id: result.lastInsertRowid, message: 'Votre message a bien été envoyé.' });
 });
 
+app.get('/api/email/bridge/status', authorize, (req, res) => res.json({ success: true, connected: false, adminEmail: '' }));
+app.post('/api/email/bridge/pairing', authorize, (req, res) => responseError(res, 503, 'La liaison Gmail se prépare depuis le portfolio publié.'));
+
 app.get('/api/messages', authorize, (req, res) => {
   const messages = db.prepare('SELECT id, name, email, message, created_at, is_read, is_processed FROM messages ORDER BY created_at DESC, id DESC').all();
+  const replies = db.prepare('SELECT id, message_id, direction, body, status, created_at, sent_at, last_error FROM message_replies ORDER BY created_at ASC, id ASC').all();
+  const byMessage = new Map();
+  for (const reply of replies) {
+    if (!byMessage.has(reply.message_id)) byMessage.set(reply.message_id, []);
+    byMessage.get(reply.message_id).push(reply);
+  }
+  for (const message of messages) message.replies = byMessage.get(message.id) || [];
   return res.json(messages);
 });
+
+app.post('/api/messages/:id/replies', authorize, (req, res) => responseError(res, 409, 'Reliez Gmail depuis la page admin du portfolio publié avant d’envoyer une réponse.'));
+app.post('/api/messages/:id/replies/:replyId/retry', authorize, (req, res) => responseError(res, 409, 'La liaison Gmail se gère depuis la page admin du portfolio publié.'));
 
 app.patch('/api/messages/:id/:action', authorize, (req, res) => {
   const id = safeId(req.params.id);
@@ -134,3 +147,4 @@ app.use((req, res) => res.status(404).json({ success: false, message: 'Page intr
 if (require.main === module) app.listen(port, '0.0.0.0', () => console.log(`Portfolio prêt sur http://localhost:${port}`));
 
 module.exports = app;
+
